@@ -15,7 +15,7 @@ from pyrogram.handlers import MessageHandler
 
 from bot import (DATABASE_URL, INCOMPLETE_TASK_NOTIFIER, LOGGER,
                  STOP_DUPLICATE_TASKS, Interval, QbInterval, bot, botStartTime,
-                 config_dict, scheduler)
+                 config_dict, scheduler, alive)
 from bot.helper.listeners.aria2_listener import start_aria2_listener
 
 from .helper.ext_utils.bot_utils import (cmd_exec, get_readable_file_size,
@@ -83,6 +83,7 @@ async def restart(client, message):
     for interval in [QbInterval, Interval]:
         if interval:
             interval[0].cancel()
+        alive.kill()    
     await sync_to_async(clean_all)
     proc1 = await create_subprocess_exec('pkill', '-9', '-f', 'gunicorn|aria2c|qbittorrent-nox|ffmpeg|rclone')
     proc2 = await create_subprocess_exec('python3', 'update.py')
